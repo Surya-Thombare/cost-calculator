@@ -33,7 +33,7 @@ import { twMerge } from "tailwind-merge";
 import clsx from "clsx";
 import { motion } from 'framer-motion';
 
-const cn = (...inputs: any[]) => {
+const cn = (...inputs: (string | undefined | false)[]) => {
   return twMerge(clsx(inputs));
 };
 
