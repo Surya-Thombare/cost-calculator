@@ -12,7 +12,7 @@ export const calculateProjectCost = async (selections: Record<number, string | s
     features: Array.isArray(selections[8]) ? selections[8] : [selections[8]],
   };
 
-  const response = await fetch('/api/calculate-cost', {
+  const response = await fetch('https://cost-calculator-seven.vercel.app/api/calculate-cost', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
