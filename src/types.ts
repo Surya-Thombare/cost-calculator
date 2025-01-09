@@ -18,46 +18,23 @@ export type Selections = {
   [key: number]: string;
 }
 
-// constants.ts
-import {
-  // Monitor,
-  // Smartphone,
-  // Screens,
-  // UserCircle2,
-  // CreditCard,
-  // PaintBucket,
-  // Database,
-  // Shield,
-  // Puzzle,
-  Building2,
-  Gauge,
-  GraduationCap,
-  Dumbbell,
-  ShoppingCart,
-  Landmark,
-  Home,
-  Briefcase,
-  Fuel,
-  MessageCircle,
-} from "lucide-react";
+export interface Selection {
+  industry: string;
+  platform: string;
+  users: string;
+  thirdParty: string;
+  uiDesign: string;
+  database: string;
+  security: string;
+  features: string;
+}
 
-export const steps: Step[] = [
-  {
-    id: 1,
-    title: 'Industry',
-    description: 'Select your industry',
-    options: [
-      { id: 'it', label: 'Information Technology', icon: Gauge },
-      { id: 'healthcare', label: 'Healthcare', icon: Building2 },
-      { id: 'education', label: 'Education', icon: GraduationCap },
-      { id: 'fitness', label: 'Fitness', icon: Dumbbell },
-      { id: 'ecommerce', label: 'E-Commerce', icon: ShoppingCart },
-      { id: 'finance', label: 'Financial Services', icon: Landmark },
-      { id: 'realestate', label: 'Real Estate', icon: Home },
-      { id: 'business', label: 'Business', icon: Briefcase },
-      { id: 'oil', label: 'Oil & Natural Gas', icon: Fuel },
-      { id: 'social', label: 'Social Media App', icon: MessageCircle },
-    ]
-  },
-  // ... other steps remain the same
-];
+export interface CostEstimate {
+  basePrice: number;
+  features: {
+    name: string;
+    cost: number;
+  }[];
+  totalCost: number;
+  timeEstimate: string;
+}

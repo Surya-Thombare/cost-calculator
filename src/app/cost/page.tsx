@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Building2,
   ArrowRight,
@@ -32,8 +32,9 @@ import {
 import { twMerge } from "tailwind-merge";
 import clsx from "clsx";
 import { motion } from 'framer-motion';
+import { CostEstimate } from '@/types';
 
-const cn = (...inputs: (string | undefined | false)[]) => {
+const cn = (...inputs: unknown[]) => {
   return twMerge(clsx(inputs));
 };
 
@@ -42,6 +43,12 @@ interface Option {
   label: string;
   icon: React.ElementType;
   description?: string;
+}
+
+interface CostResult {
+  isLoading: boolean;
+  data?: CostEstimate;
+  error?: string;
 }
 
 interface Step {
@@ -150,33 +157,60 @@ const steps: Step[] = [
       { id: 'custom', label: 'Custom Features', icon: Puzzle },
     ]
   },
-  {
-    id: 9,
-    title: 'Features',
-    description: 'Additional features',
-    icon: Puzzle,
-    options: [
-      { id: 'basic', label: 'Essential Features', icon: Puzzle },
-      { id: 'advanced', label: 'Advanced Features', icon: Puzzle },
-      { id: 'custom', label: 'Custom Features', icon: Puzzle },
-    ]
-  },
-  {
-    id: 10,
-    title: 'Features',
-    description: 'Additional features',
-    icon: Puzzle,
-    options: [
-      { id: 'basic', label: 'Essential Features', icon: Puzzle },
-      { id: 'advanced', label: 'Advanced Features', icon: Puzzle },
-      { id: 'custom', label: 'Custom Features', icon: Puzzle },
-    ]
-  },
 ];
 
 const CostCalculator: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [selections, setSelections] = useState<Record<number, string>>({});
+  const [, setCostResult] = useState<CostResult>({
+    isLoading: false
+  });
+
+  const calculateCost = async () => {
+    if (Object.keys(selections).length !== steps.length) return;
+
+    setCostResult({ isLoading: true });
+
+    const prompt = {
+      industry: selections[1],
+      platform: selections[2],
+      users: selections[3],
+      thirdParty: selections[4],
+      uiDesign: selections[5],
+      database: selections[6],
+      security: selections[7],
+      features: selections[8]
+    }
+
+    try {
+      const response = await fetch('/api/calculate-cost', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to calculate cost');
+      }
+
+      const data = await response.json();
+      setCostResult({ isLoading: false, data });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      setCostResult({
+        isLoading: false,
+        error: 'Error calculating cost. Please try again.'
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (currentStep === steps.length && Object.keys(selections).length === steps.length) {
+      calculateCost();
+    }
+  }, [currentStep, selections]);
 
   const handleSelection = (stepId: number, optionId: string) => {
     setSelections(prev => ({
@@ -191,7 +225,7 @@ const CostCalculator: React.FC = () => {
   return (
     <div className="h-screen bg-[#0F172A] flex overflow-hidden">
       {/* Vertical Steps */}
-      <div className="w-[320px] h-full">
+      <div className="w-[320px] h-full border-r border-gray-800">
         <div className="h-full overflow-y-auto hide-scrollbar py-6 px-4">
           {steps.map((step, index) => {
             const IconComponent = step.icon;
@@ -349,7 +383,7 @@ const CostCalculator: React.FC = () => {
         </div>
 
         {/* Navigation */}
-        <div className="p-8 ">
+        <div className="p-8 border-t border-gray-800">
           <div className="flex justify-between max-w-md mx-auto">
             <motion.button
               whileHover={{ scale: 1.02 }}
