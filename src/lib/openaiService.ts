@@ -12,9 +12,6 @@ export const openai = new OpenAI({
 });
 
 export async function generateText(prompt: string) {
-
-  console.log(prompt)
-
   const response = await openai.chat.completions.create({
     model: "gpt-4o-mini",
     messages: [
@@ -26,6 +23,8 @@ export async function generateText(prompt: string) {
     ],
     max_tokens: 100,
   });
+
+  console.log('Initial response', response)
 
   return response.choices[0].message;
 }

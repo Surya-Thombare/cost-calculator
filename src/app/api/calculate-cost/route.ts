@@ -22,7 +22,8 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ text }, { status: 200 });
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-        console.log("error here two")
+
+        console.log("error here two", error)
         return NextResponse.json({ error: 'Failed to generate text' }, { status: 500 });
     }
 }
