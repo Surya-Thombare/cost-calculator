@@ -190,8 +190,8 @@ export default function Page() {
       };
     });
 
-    if (!steps[currentStep - 1].isMultiSelect && currentStep < steps.length) {
-      setCurrentStep(prev => prev + 1);
+    if (currentStep && !steps[currentStep - 1].isMultiSelect && currentStep < steps.length) {
+      setCurrentStep(prev => prev ? prev + 1 : 1);
     }
   };
 
@@ -414,7 +414,7 @@ export default function Page() {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
+                  onClick={() => setCurrentStep((prev) => prev ? Math.max(1, prev - 1) : 1)}
                   disabled={currentStep === 1}
                   className={
                     cn(
@@ -435,7 +435,7 @@ export default function Page() {
                     if (currentStep === steps.length) {
                       calculateCost();
                     } else {
-                      setCurrentStep(prev => Math.min(steps.length, prev + 1));
+                      setCurrentStep(prev => prev ? Math.min(steps.length, prev + 1) : 1);
                     }
                   }}
                   disabled={!canProgress()}
