@@ -199,7 +199,7 @@ export default function Page() {
     try {
       setShowResult(false);
 
-      const response = await fetch('/api/calculate-cost', {
+      const response = await fetch('https://cost-calculator-seven.vercel.app/api/calculate-cost', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -229,11 +229,11 @@ export default function Page() {
     }
   };
 
-  useEffect(() => {
-    if (currentStep === steps.length && Object.keys(selections).length === steps.length) {
-      calculateCost();
-    }
-  }, [currentStep, selections]);
+  // useEffect(() => {
+  //   if (currentStep === steps.length && Object.keys(selections).length === steps.length) {
+  //     calculateCost();
+  //   }
+  // }, [currentStep, selections]);
 
   const canProgress = () => {
     const currentSelection = currentStep && selections[currentStep];
