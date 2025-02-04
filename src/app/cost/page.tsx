@@ -29,6 +29,10 @@ import {
   Bell,
   Gauge,
   ChevronRight,
+  Plus,
+  Calculator,
+  Clock,
+  CheckSquare,
 } from "lucide-react";
 import { twMerge } from "tailwind-merge";
 import clsx from "clsx";
@@ -44,6 +48,11 @@ interface Option {
   label: string;
   icon: React.ElementType;
   description?: string;
+  isOther?: boolean;
+}
+
+interface OtherInputs {
+  [key: number]: string;
 }
 
 interface Step {
@@ -72,6 +81,7 @@ const steps: Step[] = [
       { id: 'business', label: 'Business', icon: Briefcase },
       { id: 'oil', label: 'Oil & Natural Gas', icon: Fuel },
       { id: 'social', label: 'Social Media App', icon: MessageCircle },
+      { id: 'other', label: 'Other Industry', icon: Plus, isOther: true }
     ]
   },
   {
@@ -83,6 +93,7 @@ const steps: Step[] = [
       { id: 'web', label: 'Web Application', icon: Monitor },
       { id: 'mobile', label: 'Mobile Application', icon: Smartphone },
       { id: 'both', label: 'Both Platforms', icon: MonitorSmartphone },
+      { id: 'other', label: 'Other Platform', icon: Plus, isOther: true }
     ]
   },
   {
@@ -95,6 +106,7 @@ const steps: Step[] = [
       { id: 'social', label: 'Social Login', icon: MessageCircle },
       { id: 'biometric', label: 'Biometric Auth', icon: Fingerprint },
       { id: 'sso', label: 'Enterprise SSO', icon: Building2 },
+      { id: 'other', label: 'Other Auth Method', icon: Plus, isOther: true }
     ]
   },
   {
@@ -108,6 +120,7 @@ const steps: Step[] = [
       { id: 'cloud', label: 'Cloud Services', icon: Cloud },
       { id: 'notification', label: 'Push Notifications', icon: Bell },
       { id: 'analytics', label: 'Analytics', icon: Gauge },
+      { id: 'other', label: 'Other Integration', icon: Plus, isOther: true }
     ]
   },
   {
@@ -119,6 +132,7 @@ const steps: Step[] = [
       { id: 'basic', label: 'Basic UI', icon: PaintBucket },
       { id: 'custom', label: 'Custom Design', icon: PaintBucket },
       { id: 'premium', label: 'Premium UI', icon: PaintBucket },
+      { id: 'other', label: 'Other Design Style', icon: Plus, isOther: true }
     ]
   },
   {
@@ -130,6 +144,7 @@ const steps: Step[] = [
       { id: 'sql', label: 'SQL Database', icon: Database },
       { id: 'nosql', label: 'NoSQL Database', icon: Database },
       { id: 'hybrid', label: 'Hybrid Solution', icon: Database },
+      { id: 'other', label: 'Other Database', icon: Plus, isOther: true }
     ]
   },
   {
@@ -141,6 +156,7 @@ const steps: Step[] = [
       { id: 'basic', label: 'Standard Security', icon: Shield },
       { id: 'advanced', label: 'Advanced Security', icon: Shield },
       { id: 'enterprise', label: 'Enterprise Grade', icon: Shield },
+      { id: 'other', label: 'Other Security', icon: Plus, isOther: true }
     ]
   },
   {
@@ -153,15 +169,17 @@ const steps: Step[] = [
       { id: 'basic', label: 'Essential Features', icon: Puzzle },
       { id: 'advanced', label: 'Advanced Features', icon: Puzzle },
       { id: 'custom', label: 'Custom Features', icon: Puzzle },
+      { id: 'other', label: 'Other Features', icon: Plus, isOther: true }
     ]
   }
 ];
 
-export default function Page() {
+const Page = () => {
   const [currentStep, setCurrentStep] = useState<number | null>(null);
   const [selections, setSelections] = useState<Record<number, string | string[]>>({});
   const [showResult, setShowResult] = useState(false);
   const [estimatedCost, setEstimatedCost] = useState<string>('');
+  const [otherInputs, setOtherInputs] = useState<OtherInputs>({});
 
   useEffect(() => {
     setCurrentStep(1);
@@ -190,7 +208,7 @@ export default function Page() {
       };
     });
 
-    if (currentStep && !steps[currentStep - 1].isMultiSelect && currentStep < steps.length) {
+    if (currentStep && !steps[currentStep - 1].isMultiSelect && currentStep < steps.length || optionId !== 'other') {
       setCurrentStep(prev => prev ? prev + 1 : 1);
     }
   };
@@ -333,8 +351,8 @@ export default function Page() {
           </div>
 
           {/* Main Content */}
-          <div className="flex-1 flex flex-col h-full">
-            <div className="flex-1 p-8 overflow-y-auto">
+          <div className="flex-1 flex flex-col h-full hide-scrollbar">
+            <div className="flex-1 p-8 overflow-y-auto hide-scrollbar">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentStep}
@@ -369,38 +387,60 @@ export default function Page() {
                         ? (selections[currentStep] as string[] || [])
                         : [selections[currentStep]];
                       const isSelected = currentSelections.includes(option.id);
+                      const showOtherInput = option.isOther && isSelected;
 
                       return (
-                        <motion.button
-                          key={option.id}
-                          variants={{
-                            hidden: { opacity: 0, y: 20 },
-                            visible: { opacity: 1, y: 0 }
-                          }}
-                          onClick={() => handleSelection(currentStep, option.id)}
-                          className={cn(
-                            "flex flex-col items-center p-6 rounded-xl border transition-all duration-300",
-                            "hover:border-blue-500 hover:bg-blue-500/5",
-                            "group relative overflow-hidden",
-                            isSelected
-                              ? "border-blue-500 bg-blue-500/10 shadow-[0_0_30px_-5px_rgba(59,130,246,0.3)]"
-                              : "border-blue-900/30 bg-blue-950/30"
+                        <div key={option.id}>
+                          <motion.button
+                            variants={{
+                              hidden: { opacity: 0, y: 20 },
+                              visible: { opacity: 1, y: 0 }
+                            }}
+                            onClick={() => handleSelection(currentStep, option.id)}
+                            className={cn(
+                              "flex flex-col items-center p-4 rounded-lg border transition-all duration-300", // Made smaller
+                              "hover:border-blue-500 hover:bg-blue-500/5",
+                              "group relative overflow-hidden w-full",
+                              isSelected
+                                ? "border-blue-500 bg-blue-500/10 shadow-[0_0_30px_-5px_rgba(59,130,246,0.3)]"
+                                : "border-blue-900/30 bg-blue-950/30"
+                            )}
+                          >
+                            <div className={cn(
+                              "w-12 h-12 rounded-full flex items-center justify-center mb-3", // Made smaller
+                              "transition-all duration-300 group-hover:scale-110",
+                              isSelected ? "bg-blue-500 text-white" : "bg-blue-900/30 text-blue-400"
+                            )}>
+                              <IconComponent className="w-6 h-6" />
+                            </div>
+                            <h3 className={cn(
+                              "text-base font-semibold mb-1 transition-colors duration-300", // Made smaller
+                              isSelected ? "text-white" : "text-gray-300"
+                            )}>
+                              {option.label}
+                            </h3>
+                          </motion.button>
+
+                          {showOtherInput && (
+                            <motion.div
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                              exit={{ opacity: 0, height: 0 }}
+                              className="mt-2"
+                            >
+                              <textarea
+                                value={otherInputs[currentStep] || ''}
+                                onChange={(e) => setOtherInputs(prev => ({
+                                  ...prev,
+                                  [currentStep]: e.target.value
+                                }))}
+                                placeholder="Please specify..."
+                                className="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                rows={3}
+                              />
+                            </motion.div>
                           )}
-                        >
-                          <div className={cn(
-                            "w-16 h-16 rounded-full flex items-center justify-center mb-4",
-                            "transition-all duration-300 group-hover:scale-110",
-                            isSelected ? "bg-blue-500 text-white" : "bg-blue-900/30 text-blue-400"
-                          )}>
-                            <IconComponent className="w-8 h-8" />
-                          </div>
-                          <h3 className={cn(
-                            "text-lg font-semibold mb-1 transition-colors duration-300",
-                            isSelected ? "text-white" : "text-gray-300"
-                          )}>
-                            {option.label}
-                          </h3>
-                        </motion.button>
+                        </div>
                       );
                     })}
                   </motion.div>
@@ -455,26 +495,32 @@ export default function Page() {
 
           {/* Result Modal */}
           <Dialog open={showResult} onOpenChange={setShowResult}>
-            <DialogContent className="bg-[#1E293B] border-gray-800 text-white">
+            <DialogContent className="bg-[#1E293B] border-gray-800 text-white max-w-2xl">
               <DialogHeader>
-                <DialogTitle className="text-2xl font-bold text-white">
-                  Estimated Project Cost
+                <DialogTitle className="text-2xl font-bold text-white flex items-center gap-2">
+                  <Calculator className="w-6 h-6 text-blue-500" />
+                  Project Cost Estimate
                 </DialogTitle>
               </DialogHeader>
 
               <div className="space-y-6">
-                <div className="p-6 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                  <h3 className="text-xl font-semibold text-blue-400 mb-2">
+                <div className="p-8 rounded-lg bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-blue-500/20">
+                  <h3 className="text-xl font-semibold text-blue-400 mb-4">
                     Estimated Cost
                   </h3>
-                  <p className="text-4xl font-bold text-white">
+                  <p className="text-5xl font-bold text-white mb-4">
                     {estimatedCost}
                   </p>
+                  <div className="flex items-center gap-2 text-gray-400">
+                    <Clock className="w-4 h-4" />
+                    <span>Estimated timeline: 3-6 months</span>
+                  </div>
                 </div>
 
-                <div className="space-y-4">
-                  <div className="bg-gray-800/50 p-4 rounded-lg">
-                    <h4 className="text-lg font-semibold text-white mb-2">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 rounded-lg bg-gray-800/50">
+                    <h4 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                      <CheckSquare className="w-5 h-5 text-green-400" />
                       Selected Features
                     </h4>
                     <div className="space-y-2">
@@ -486,11 +532,18 @@ export default function Page() {
                               <step.icon className="w-4 h-4 text-blue-400" />
                             </div>
                             <div>
-                              <p className="text-sm font-medium text-gray-300">{step.title}</p>
+                              <p className="text-sm font-medium text-gray-300">
+                                {step.title}
+                              </p>
                               <p className="text-sm text-gray-400">
                                 {Array.isArray(selection)
-                                  ? selection.map(id => step.options.find(opt => opt.id === id)?.label).join(', ')
-                                  : step.options.find(opt => opt.id === selection)?.label}
+                                  ? selection.map(id => {
+                                    if (id === 'other') return otherInputs[Number(stepId)];
+                                    return step.options.find(opt => opt.id === id)?.label;
+                                  }).join(', ')
+                                  : selection === 'other'
+                                    ? otherInputs[Number(stepId)]
+                                    : step.options.find(opt => opt.id === selection)?.label}
                               </p>
                             </div>
                           </div>
@@ -499,10 +552,31 @@ export default function Page() {
                     </div>
                   </div>
 
-                  <div className="bg-yellow-500/10 border border-yellow-500/20 p-4 rounded-lg">
-                    <p className="text-sm text-yellow-300">
-                      Note: This is an initial estimate. Final costs may vary based on detailed requirements and specifications.
-                    </p>
+                  <div className="space-y-4">
+                    <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/20">
+                      <h4 className="font-semibold text-green-400 mb-2">Included</h4>
+                      <ul className="space-y-2 text-sm text-gray-300">
+                        <li className="flex items-center gap-2">
+                          <Check className="w-4 h-4 text-green-400" />
+                          Complete development
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <Check className="w-4 h-4 text-green-400" />
+                          Testing & QA
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <Check className="w-4 h-4 text-green-400" />
+                          Deployment
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div className="p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+                      <h4 className="font-semibold text-yellow-400 mb-2">Note</h4>
+                      <p className="text-sm text-gray-300">
+                        This is an initial estimate. Final costs may vary based on detailed requirements and specifications.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -531,3 +605,5 @@ export default function Page() {
     </div>
   );
 }
+
+export default Page;
